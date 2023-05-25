@@ -1,0 +1,9 @@
+/src/
+/tests/
+/.github/
+/.nyc_output/
+/tsconfig.json
+/tsconfig.cjs.json
+/.eslintrc.cjs
+*.log
+*.tgz
