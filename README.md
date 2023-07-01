@@ -1,11 +1,11 @@
-# Transform It(erable)
+# Transform Async Iterable
 
-[![Build Status](https://github.com/lionel87/transform-it/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/lionel87/transform-it/actions/workflows/coveralls.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/lionel87/transform-it/badge.svg?branch=master)](https://coveralls.io/github/lionel87/transform-it?branch=master)
-![npms.io (quality)](https://img.shields.io/npms-io/quality-score/@static-pages/transform-it?label=quality)
+[![Build Status](https://github.com/lionel87/transform-async-iterable/actions/workflows/build.yaml/badge.svg)](https://github.com/lionel87/transform-async-iterable/actions/workflows/build.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/lionel87/transform-async-iterable/badge.svg?branch=master)](https://coveralls.io/github/lionel87/transform-async-iterable?branch=master)
+![npms.io (quality)](https://img.shields.io/npms-io/quality-score/@static-pages/transform-async-iterable?label=quality)
 ![Maintenance](https://img.shields.io/maintenance/yes/2023)
 
-TransformIt is a TypeScript package that provides a utility function for transforming iterables and async iterables with a custom transformation function. It enables developers to easily apply transformations to each item in an iterable and generate a new iterable with the transformed results. This module is particularly useful when dealing with collections of data and needing to perform consistent operations on each item.
+`transform-async-iterable` is a TypeScript package that provides a utility function for transforming iterables and async iterables with a custom transformation function. It enables developers to easily apply transformations to each item in an iterable and generate a new iterable with the transformed results. This module is particularly useful when dealing with collections of data and needing to perform consistent operations on each item.
 
 ## Key Features
 
@@ -20,24 +20,24 @@ TransformIt is a TypeScript package that provides a utility function for transfo
 Install it via your preferred package manager:
 
 ```sh
-npm install transform-it
+npm install transform-async-iterable
 ```
 
 or
 
 ```sh
-yarn add transform-it
+yarn add transform-async-iterable
 ```
 
 
 ## Usage
 
-Here's how you can use TransformIt in your TypeScript/JavaScript project:
+Here's how you can use `transform-async-iterable` in your TypeScript/JavaScript project:
 
 1. Import the `transform` function:
 
 ```js
-import transform from 'transform-it';
+import transform from 'transform-async-iterable';
 ```
 
 2. Define your custom transformation function:
@@ -55,7 +55,7 @@ const transformFunction = (item) => {
 const data = [1, 2, 3, 4, 5];
 ```
 
-4. Call the `transformIt` function, passing in the iterable and transformation function:
+4. Call the `transform` function, passing in the iterable and transformation function:
 
 ```js
 const transformedData = transform(data, transformFunction);
@@ -88,6 +88,7 @@ The transformation function can indicate to remove an item from the produced ite
 
 > Note: the `transform()` call always returns an async iterable object, even when the input and the transform function could work in sync mode.
 
+
 ### `transformSync<T, R>(it: Iterable<T>, fn: SyncCallbackFn<T, R>): Generator<R>`
 
 The `transformSync` function accepts two arguments:
@@ -107,17 +108,15 @@ The transformation function can indicate to remove an item from the produced ite
 
 Here are some examples to demonstrate the usage:
 
-### Example 1: Transforming an array of numbers
+### Example 1: Mapping an array of numbers
 ```js
-import transform from 'transform-it';
+import transform from 'transform-async-iterable';
 
 const data = [1, 2, 3, 4, 5];
 
-const doubleTransform = (item) => {
+const transformedData = transform(data, (item) => {
   return item * 2;
-};
-
-const transformedData = transform(data, doubleTransform);
+});
 
 for await (const item of transformedData) {
   console.log(item);
@@ -134,15 +133,15 @@ Output:
 10
 ```
 
-### Example 2: Transforming an async iterable of objects
+
+### Example 2: Mapping an async iterable of objects
 
 ```js
-import transform from 'transform-it';
+import transform from 'transform-async-iterable';
 
 async function* fetchData() {
   yield { id: 1, name: 'John' };
   yield { id: 2, name: 'Jane' };
-  // ...
 }
 
 const capitalizeName = async (item) => {
@@ -164,10 +163,86 @@ Output:
 { id: 2, name: 'JANE' }
 ```
 
+
+### Example 3: Filtering and splitting
+
+```js
+import transform from 'transform-async-iterable';
+
+async function* fetchData() {
+  yield { id: '1', name: 'John' };
+  yield { id: '2', name: 'Jane' };
+  yield { id: '3', name: 'Doe' };
+  yield { id: '4', name: 'Steve,Emma' };
+}
+
+const transformedData = transform(fetchData(), (item) => {
+  if (item.name === 'Doe') return; // remove from the collection
+  if (item.name.includes(',')) { // split names to two objects
+    return item.name.split(',')
+      .map((name, idx) => ({
+        id: item.id + '-' + idx,
+        name: name,
+      }));
+  }
+  return item; // keep the rest as-is
+});
+
+for await (const item of transformedData) {
+  console.log(item);
+}
+```
+
+Output:
+
+```text
+{ id: '1', name: 'John' }
+{ id: '2', name: 'Jane' }
+{ id: '4-0', name: 'Steve' }
+{ id: '4-1', name: 'Emma' }
+```
+
+
+### Example 3: Merging
+
+```js
+import transform from 'transform-async-iterable';
+
+async function* fetchData() {
+  yield 'a';
+  yield 'b';
+  yield '\n';
+  yield 'c';
+  yield 'd';
+  yield '\n';
+}
+
+let buffer = '';
+const transformedData = transform(fetchData(), (item) => {
+  if (item === '\n') {
+    const line = buffer;
+    buffer = '';
+    return line;
+  }
+  buffer += item;
+});
+
+for await (const item of transformedData) {
+  console.log(item);
+}
+```
+
+Output:
+
+```text
+ab
+cd
+```
+
 ## Contributions
 
-Contributions to TransformIt are welcome! If you have any bug reports, feature requests, or improvements, please open an issue on the [GitHub repository](https://github.com/lionel87/transform-it).
+Contributions to `transform-async-iterable` are welcome! If you have any bug reports, feature requests, or improvements, please open an issue on the [GitHub repository](https://github.com/lionel87/transform-async-iterable).
 
 ## License
 
-TransformIt is licensed under the [MIT License](https://github.com/lionel87/transform-it/blob/main/LICENSE).
+`transform-async-iterable` is licensed under the [MIT License](https://github.com/lionel87/transform-async-iterable/blob/master/LICENSE).
