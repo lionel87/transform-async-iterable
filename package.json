@@ -1,6 +1,6 @@
 {
   "name": "transform-async-iterable",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "TransformIt is a TypeScript package that provides a utility function for transforming iterables and async iterables with a custom transformation function. It enables developers to easily apply transformations to each item in an iterable and generate a new iterable with the transformed results. This module is particularly useful when dealing with collections of data and needing to perform consistent operations on each item.",
   "type": "module",
   "main": "cjs/index.js",
