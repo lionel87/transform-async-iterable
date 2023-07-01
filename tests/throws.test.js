@@ -1,50 +1,48 @@
-import tap from 'tap';
+import { expect } from 'chai';
 import { transform, transformSync } from '../esm/index.js';
 
-tap.test('transformSync should throw an error for invalid input', async (t) => {
-	const input = 123; // Invalid input
-	const fn = item => item;
-	try {
-		for (const _ of transformSync(input, fn)) { }
-		t.fail('Expected an error to be thrown');
-	} catch (error) {
-		t.ok(error instanceof Error, 'Error should be thrown');
-	}
-	t.end();
+describe('transformSync', () => {
+	it('should throw an error for invalid input', async () => {
+		const input = 123; // Invalid input
+		const fn = item => item;
+		expect(() => {
+			for (const _ of transformSync(input, fn)) { }
+		}).to.throw(Error);
+	});
+
+	it('should throw an error for invalid fn', async () => {
+		const input = [1, 2, 3];
+		const fn = 123; // Non-function callback
+		expect(() => {
+			for (const _ of transformSync(input, fn)) { }
+		}).to.throw(Error);
+	});
 });
 
-tap.test('transformSync should throw an error for invalid fn', async (t) => {
-	const input = [1, 2, 3];
-	const fn = 123; // Non-function callback
-	try {
-		for (const _ of transformSync(input, fn)) { }
-		t.fail('Expected an error to be thrown');
-	} catch (error) {
-		t.ok(error instanceof Error, 'Error should be thrown');
-	}
-	t.end();
-});
+describe('transform', () => {
+	it('should throw an error for invalid input', async () => {
+		const input = 123; // Invalid input
+		const fn = item => item;
+		let errorThrown = false;
+		try {
+			for await (const _ of transform(input, fn)) { }
+		} catch (error) {
+			errorThrown = true;
+			expect(error).to.be.an.instanceOf(Error);
+		}
+		expect(errorThrown).to.be.true;
+	});
 
-tap.test('transform should throw an error for invalid input', async (t) => {
-	const input = 123; // Invalid input
-	const fn = item => item;
-	try {
-		for await (const _ of transform(input, fn)) { }
-		t.fail('Expected an error to be thrown');
-	} catch (error) {
-		t.ok(error instanceof Error, 'Error should be thrown');
-	}
-	t.end();
-});
-
-tap.test('transform should throw an error for invalid fn', async (t) => {
-	const input = [1, 2, 3];
-	const fn = 123; // Non-function callback
-	try {
-		for await (const _ of transform(input, fn)) { }
-		t.fail('Expected an error to be thrown');
-	} catch (error) {
-		t.ok(error instanceof Error, 'Error should be thrown');
-	}
-	t.end();
+	it('should throw an error for invalid fn', async () => {
+		const input = [1, 2, 3];
+		const fn = 123; // Non-function callback
+		let errorThrown = false;
+		try {
+			for await (const _ of transform(input, fn)) { }
+		} catch (error) {
+			errorThrown = true;
+			expect(error).to.be.an.instanceOf(Error);
+		}
+		expect(errorThrown).to.be.true;
+	});
 });

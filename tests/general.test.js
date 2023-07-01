@@ -1,8 +1,8 @@
-import tap from 'tap';
+import { expect } from 'chai';
 import { Readable } from 'stream';
 import { transform, transformSync } from '../esm/index.js';
 
-const seq = n => Array.from(new Array(n)).map((v, i) => ({ a: i }));
+const seq = n => Array.from({ length: n }, (v, i) => ({ a: i }));
 
 const toGenerator = function* (source) { yield* source; };
 const toAsyncGenerator = async function* (source) { yield* source; };
@@ -26,133 +26,149 @@ const sumPairs = ({ a }) => {
 	sumPairsMemoized = undefined;
 	return result;
 };
-const filterOdd = (d) => {
+const keepEven = (d) => {
 	if (d.a % 2 === 0) return d;
 };
 const duplicate = ({ a }) => [{ a }, { a: 2 * a }];
 
-tap.test('can map items', async () => {
-	const input = seq(5);
-	const expected = seq(5).map(double);
+describe('transformSync', () => {
+	it('can map an array', async () => {
+		const input = seq(5);
+		const expected = seq(5).map(double);
 
-	const output = [];
-	for await (const item of transform(input, double)) {
-		output.push(item);
-	}
+		const output = [];
+		for (const item of transformSync(input, double)) {
+			output.push(item);
+		}
 
-	tap.match(output, expected);
+		expect(output).to.deep.equal(expected);
+	});
+
+	it('can filter an array', async () => {
+		const input = seq(5);
+		const expected = seq(5).filter(keepEven);
+
+		const output = [];
+		for (const item of transformSync(input, keepEven)) {
+			output.push(item);
+		}
+
+		expect(output).to.deep.equal(expected);
+	});
+
+	it('can merge array items', async () => {
+		const input = seq(5);
+		const expected = seq(5).map(sumPairs).filter(Boolean);
+		sumPairsMemoized = undefined;
+
+		const output = [];
+		for (const item of transformSync(input, sumPairs)) {
+			output.push(item);
+		}
+		sumPairsMemoized = undefined;
+
+		expect(output).to.deep.equal(expected);
+	});
+
+	it('can split array items', async () => {
+		const input = seq(5);
+		const expected = seq(5).map(duplicate).flat();
+
+		const output = [];
+		for (const item of transformSync(input, duplicate)) {
+			output.push(item);
+		}
+
+		expect(output).to.deep.equal(expected);
+	});
 });
 
-tap.test('can filter items', async () => {
-	const input = seq(5);
-	const expected = seq(5).filter(x => x.a % 2 === 0);
+describe('transform', () => {
+	it('can map items', async () => {
+		const input = seq(5);
+		const expected = seq(5).map(double);
 
-	const output = [];
-	for await (const item of transform(input, filterOdd)) {
-		output.push(item);
-	}
+		const output = [];
+		for await (const item of transform(input, double)) {
+			output.push(item);
+		}
 
-	tap.match(output, expected);
-});
+		expect(output).to.deep.equal(expected);
+	});
 
-tap.test('can merge items', async () => {
-	const input = seq(5);
-	const expected = seq(5).map(sumPairs).filter(Boolean);
-	sumPairsMemoized = undefined;
+	it('can filter items', async () => {
+		const input = seq(5);
+		const expected = seq(5).filter(keepEven);
 
-	const output = [];
-	for await (const item of transform(input, sumPairs)) {
-		output.push(item);
-	}
-	sumPairsMemoized = undefined;
+		const output = [];
+		for await (const item of transform(input, keepEven)) {
+			output.push(item);
+		}
 
-	tap.match(output, expected);
-});
+		expect(output).to.deep.equal(expected);
+	});
 
-tap.test('can merge items sync', async () => {
-	const input = seq(5);
-	const expected = seq(5).map(sumPairs).filter(Boolean);
-	sumPairsMemoized = undefined;
+	it('can merge items', async () => {
+		const input = seq(5);
+		const expected = seq(5).map(sumPairs).filter(Boolean);
+		sumPairsMemoized = undefined;
 
-	const output = [];
-	for (const item of transformSync(input, sumPairs)) {
-		output.push(item);
-	}
-	sumPairsMemoized = undefined;
+		const output = [];
+		for await (const item of transform(input, sumPairs)) {
+			output.push(item);
+		}
+		sumPairsMemoized = undefined;
 
-	tap.match(output, expected);
-});
+		expect(output).to.deep.equal(expected);
+	});
 
-tap.test('can duplicate items async', async () => {
-	const input = seq(5);
-	const expected = seq(5).map(duplicate).flat();
+	it('can split items', async () => {
+		const input = seq(5);
+		const expected = seq(5).map(duplicate).flat();
 
-	const output = [];
-	for await (const item of transform(input, duplicate)) {
-		output.push(item);
-	}
+		const output = [];
+		for await (const item of transform(input, duplicate)) {
+			output.push(item);
+		}
 
-	tap.match(output, expected);
-});
+		expect(output).to.deep.equal(expected);
+	});
 
-tap.test('can duplicate items sync', async () => {
-	const input = seq(5);
-	const expected = seq(5).map(duplicate).flat();
+	it('can iterate over iterable', async () => {
+		const input = toGenerator(seq(5));
+		const expected = seq(5).map(double);
 
-	const output = [];
-	for (const item of transformSync(input, duplicate)) {
-		output.push(item);
-	}
+		const output = [];
+		for await (const item of transform(input, double)) {
+			output.push(item);
+		}
 
-	tap.match(output, expected);
-});
+		expect(output).to.deep.equal(expected);
+	});
 
-tap.test('can iterate over iterable async', async () => {
-	const input = toGenerator(seq(5));
-	const expected = seq(5).map(double);
+	it('can iterate over async iterable', async () => {
+		const input = toAsyncGenerator(seq(5));
+		const expected = seq(5).map(double);
 
-	const output = [];
-	for await (const item of transform(input, double)) {
-		output.push(item);
-	}
+		const output = [];
+		for await (const item of transform(input, double)) {
+			output.push(item);
+		}
 
-	tap.match(output, expected);
-});
+		expect(output).to.deep.equal(expected);
+	});
 
-tap.test('can iterate over iterable sync', async () => {
-	const input = toGenerator(seq(5));
-	const expected = seq(5).map(double);
+	it('can iterate over object stream', async () => {
+		const input = toObjectStream(seq(5));
+		const expected = seq(5).map(double);
 
-	const output = [];
-	for (const item of transformSync(input, double)) {
-		output.push(item);
-	}
+		const output = [];
+		for await (const item of transform(input, double)) {
+			output.push(item);
+		}
 
-	tap.match(output, expected);
-});
-
-tap.test('can iterate over async iterable', async () => {
-	const input = toAsyncGenerator(seq(5));
-	const expected = seq(5).map(double);
-
-	const output = [];
-	for await (const item of transform(input, double)) {
-		output.push(item);
-	}
-
-	tap.match(output, expected);
-});
-
-tap.test('can iterate over object stream', async () => {
-	const input = toObjectStream(seq(5));
-	const expected = seq(5).map(double);
-
-	const output = [];
-	for await (const item of transform(input, double)) {
-		output.push(item);
-	}
-
-	tap.match(output, expected);
+		expect(output).to.deep.equal(expected);
+	});
 });
 
 

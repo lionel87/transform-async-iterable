@@ -1,6 +1,6 @@
+/coverage/
 /node_modules/
 /esm/
 /cjs/
-/.nyc_output/
 *.log
 *.tgz

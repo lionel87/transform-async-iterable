@@ -1,13 +1,15 @@
-const tap = require('tap');
-const { transform } = require('../cjs/index.js');
+const { expect } = require('chai');
+const { transformSync } = require('../cjs/index.js');
 
-const seq = n => Array.from(new Array(n)).map((v, i) => ({ a: i }));
+const seq = n => Array.from({ length: n }, (v, i) => ({ a: i }));
 
-tap.test('can be imported in commonjs format', async () => {
-	const input = seq(5);
-	const expected = seq(5);
+describe('transformSync', () => {
+  it('can be imported in commonjs format', () => {
+    const input = seq(5);
+    const expected = seq(5);
 
-	const output = [...input];
+	const output = [...transformSync(input, x => x)];
 
-	tap.match(output, expected);
+    expect(output).to.deep.equal(expected);
+  });
 });
