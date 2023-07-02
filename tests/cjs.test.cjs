@@ -3,7 +3,7 @@ const { transformSync } = require('../cjs/index.js');
 
 const seq = n => Array.from({ length: n }, (v, i) => ({ a: i }));
 
-describe('transformSync', () => {
+describe('CommonJS module Tests', () => {
   it('can be imported in commonjs format', () => {
     const input = seq(5);
     const expected = seq(5);

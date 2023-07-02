@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import assert from 'assert';
 import { Readable } from 'stream';
 import { transform, transformSync } from '../esm/index.js';
 
@@ -31,7 +31,7 @@ const keepEven = (d) => {
 };
 const duplicate = ({ a }) => [{ a }, { a: 2 * a }];
 
-describe('transformSync', () => {
+describe('General Tests for transformSync()', () => {
 	it('can map an array', async () => {
 		const input = seq(5);
 		const expected = seq(5).map(double);
@@ -41,7 +41,7 @@ describe('transformSync', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can filter an array', async () => {
@@ -53,7 +53,7 @@ describe('transformSync', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can merge array items', async () => {
@@ -67,7 +67,7 @@ describe('transformSync', () => {
 		}
 		sumPairsMemoized = undefined;
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can split array items', async () => {
@@ -79,11 +79,11 @@ describe('transformSync', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 });
 
-describe('transform', () => {
+describe('General Tests for transform()', () => {
 	it('can map items', async () => {
 		const input = seq(5);
 		const expected = seq(5).map(double);
@@ -93,7 +93,7 @@ describe('transform', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can filter items', async () => {
@@ -105,7 +105,7 @@ describe('transform', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can merge items', async () => {
@@ -119,7 +119,7 @@ describe('transform', () => {
 		}
 		sumPairsMemoized = undefined;
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can split items', async () => {
@@ -131,7 +131,7 @@ describe('transform', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can iterate over iterable', async () => {
@@ -143,7 +143,7 @@ describe('transform', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can iterate over async iterable', async () => {
@@ -155,7 +155,7 @@ describe('transform', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 
 	it('can iterate over object stream', async () => {
@@ -167,7 +167,7 @@ describe('transform', () => {
 			output.push(item);
 		}
 
-		expect(output).to.deep.equal(expected);
+		assert.deepStrictEqual(output, expected);
 	});
 });
 
