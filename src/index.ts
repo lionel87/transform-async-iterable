@@ -5,6 +5,9 @@ type MaybePromise<T> = T | Promise<T>;
 
 export namespace transform {
 	export type CallbackFn<T, R> = { (item: T): MaybePromise<R | Iterable<R> | AsyncIterable<R> | undefined> };
+}
+
+export namespace transformSync {
 	export type SyncCallbackFn<T, R> = { (item: T): R | Iterable<R> | undefined };
 }
 
@@ -25,7 +28,7 @@ export async function* transform<T, R>(it: Iterable<T> | AsyncIterable<T>, fn: t
 	}
 }
 
-export function* transformSync<T, R>(it: Iterable<T>, fn: transform.SyncCallbackFn<T, R>) {
+export function* transformSync<T, R>(it: Iterable<T>, fn: transformSync.SyncCallbackFn<T, R>) {
 	if (!isIterable(it))
 		throw new Error('Argument type mismatch: The first argument is expected to be "iterable".');
 
