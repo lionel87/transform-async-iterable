@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+const assert = require('assert');
 const { transformSync } = require('../cjs/index.js');
 
 const seq = n => Array.from({ length: n }, (v, i) => ({ a: i }));
@@ -8,8 +8,8 @@ describe('CommonJS module Tests', () => {
     const input = seq(5);
     const expected = seq(5);
 
-	const output = [...transformSync(input, x => x)];
+    const output = [...transformSync(input, x => x)];
 
-    expect(output).to.deep.equal(expected);
+    assert.deepStrictEqual(output, expected);
   });
 });
