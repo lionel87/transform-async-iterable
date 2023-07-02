@@ -12,6 +12,10 @@
       "default": "./esm/index.js"
     }
   },
+  "engines": {
+    "node": ">=10.0.0",
+    "deno": ">=1.0.0"
+  },
   "scripts": {
     "prepack": "npm run build && npm run test",
     "postversion": "git push && git push --tags",
